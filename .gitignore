@@ -1,0 +1,39 @@
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.mnemonic
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+coverage.xml
+.coverage
+htmlcov/
+
+# Node, frontend, and CDK
+node_modules/
+dist/
+build/
+coverage/
+cdk.out/
+*.tsbuildinfo
+
+# Local tooling and operating systems
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+# Generated local blockchain state and deployment outputs
+cache/
+broadcast/
+deployments.local/
+cdk-outputs*.json
+spikes/connectivity_probe/config.local.json

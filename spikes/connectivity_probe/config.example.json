@@ -1,0 +1,20 @@
+{
+  "mode": "mock-testnet",
+  "rpc_url": "https://rpc.testnet.chain.robinhood.com",
+  "expected_chain_id": 46630,
+  "wallet_address": "0x0000000000000000000000000000000000000000",
+  "asset_registry_url": "https://api.robinhood.com/rhj/assets",
+  "price_url_template": "https://api.robinhood.com/rhj/prices/{symbol}",
+  "rest_price_max_age_seconds": 300,
+  "asset": {
+    "symbol": "AMZN",
+    "contract_address": null
+  },
+  "feed": {
+    "address": null,
+    "max_age_seconds": 300
+  },
+  "quote": {
+    "url": null
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "checked_at": "2026-09-20T11:42:09.900227+00:00",
+  "mode": "mock-testnet",
+  "probe_version": 1,
+  "checks": {
+    "chain": {
+      "expected_chain_id": 46630,
+      "observed_chain_id": 46630,
+      "status": "valid"
+    },
+    "latest_block": {
+      "number": 122018751,
+      "status": "valid"
+    },
+    "native_balance": {
+      "base_units": 0,
+      "status": "valid",
+      "wallet_address": "redacted-user-controlled-public-address"
+    },
+    "asset_contract": {
+      "reason": "no configured contract",
+      "status": "unavailable"
+    },
+    "asset_registry": {
+      "reason": "no deployment for expected chain",
+      "status": "unavailable",
+      "symbol": "AMZN"
+    },
+    "price_feed": {
+      "reason": "no verified feed address configured",
+      "status": "unavailable"
+    },
+    "quote": {
+      "reason": "no approved testnet quote endpoint configured",
+      "status": "unavailable"
+    },
+    "rest_price": {
+      "reason": "no price deployment for expected chain",
+      "status": "unavailable"
+    }
+  },
+  "endpoints": {
+    "asset_registry": "https://api.robinhood.com",
+    "price": "https://api.robinhood.com",
+    "rpc": "https://robinhood-testnet.g.alchemy.com"
+  },
+  "evidence_note": "The repository copy redacts the public wallet address for privacy. The live probe validated its format and successfully read its zero balance. No private key, recovery phrase, or RPC credential was collected."
+}

@@ -1,0 +1,48 @@
+{
+  "checked_at": "2026-09-16T07:01:34.851569+00:00",
+  "mode": "mock-testnet",
+  "probe_version": 1,
+  "endpoints": {
+    "rpc": "https://robinhood-testnet.g.alchemy.com",
+    "asset_registry": "https://api.robinhood.com",
+    "price": "https://api.robinhood.com"
+  },
+  "checks": {
+    "chain": {
+      "expected_chain_id": 46630,
+      "observed_chain_id": 46630,
+      "status": "valid"
+    },
+    "latest_block": {
+      "number": 120271460,
+      "status": "valid"
+    },
+    "native_balance": {
+      "wallet_address": "0x0000000000000000000000000000000000000000",
+      "base_units": 1007000000000000001,
+      "status": "valid",
+      "note": "This is a read of the zero address, not evidence of a user-controlled or spendable wallet."
+    },
+    "asset_registry": {
+      "symbol": "AMZN",
+      "reason": "no deployment for expected chain",
+      "status": "unavailable"
+    },
+    "asset_contract": {
+      "reason": "no configured contract",
+      "status": "unavailable"
+    },
+    "rest_price": {
+      "reason": "no price deployment for expected chain",
+      "status": "unavailable"
+    },
+    "price_feed": {
+      "reason": "no verified feed address configured",
+      "status": "unavailable"
+    },
+    "quote": {
+      "reason": "no approved testnet quote endpoint configured",
+      "status": "unavailable"
+    }
+  }
+}
