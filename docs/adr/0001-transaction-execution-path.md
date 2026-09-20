@@ -1,7 +1,8 @@
 # ADR 0001: Transaction execution path
 
-- Status: Accepted for prototype; live validation pending
+- Status: Accepted for prototype; live validation deferred to later phases
 - Date: 2026-09-15
+- Accepted by project owner: 2026-09-20
 
 ## Context
 

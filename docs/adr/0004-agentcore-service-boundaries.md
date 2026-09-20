@@ -1,7 +1,8 @@
 # ADR 0004: AgentCore service boundaries
 
-- Status: Accepted for prototype; deployment validation pending
+- Status: Accepted for prototype; deployment validation deferred to Phase 1
 - Date: 2026-09-15
+- Accepted by project owner: 2026-09-20
 
 ## Context
 

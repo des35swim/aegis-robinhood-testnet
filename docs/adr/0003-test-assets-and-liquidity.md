@@ -1,7 +1,8 @@
 # ADR 0003: Test assets and liquidity
 
-- Status: Accepted provisionally; RPC and wallet read verified, Phase 1 blocked on test gas
+- Status: Accepted for prototype; RPC and wallet read verified
 - Date: 2026-09-15
+- Accepted by project owner: 2026-09-20
 
 ## Context
 
@@ -13,7 +14,7 @@ The official testnet explorer is live. The documented public testnet RPC was unu
 
 Select **mock testnet mode**.
 
-After Phase 0 blockers are cleared, deploy visibly labelled, valueless contracts to Robinhood Chain Testnet:
+In the authorized implementation phase, after valueless testnet gas is obtained, deploy visibly labelled, valueless contracts to Robinhood Chain Testnet:
 
 - `MockAmazonExposureToken` and at least one second mock ERC-20/8056-style asset;
 - a mock USD settlement token;
@@ -37,6 +38,6 @@ If a credentialed testnet RPC, public test address, and documented test-gas sour
 
 ## Consequences
 
-- Testnet chain/read connectivity passed on 2026-09-16, and a user-controlled public address read passed on 2026-09-20. Phase 1 remains no-go until a permitted test-gas source is verified and the remaining entry criteria are resolved.
+- Testnet chain/read connectivity passed on 2026-09-16, and a user-controlled public address read passed on 2026-09-20. Alchemy documents a Robinhood Testnet faucet; actual receipt of valueless gas remains a prerequisite for mock-contract deployment.
 - Contract implementation/deployment begins only in the phase authorized by the build spec, not Phase 0.
 - The demo proves governance controls, not real liquidity, price discovery, or canonical Stock Token compatibility.

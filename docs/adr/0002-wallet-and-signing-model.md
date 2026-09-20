@@ -1,7 +1,8 @@
 # ADR 0002: Wallet and signing model
 
-- Status: Accepted for prototype; provider validation pending
+- Status: Accepted for prototype; live wallet validation deferred to later phases
 - Date: 2026-09-15
+- Accepted by project owner: 2026-09-20
 
 ## Context
 
