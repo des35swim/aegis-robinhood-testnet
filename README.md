@@ -8,7 +8,8 @@ This repository has completed **Phase 0: feasibility validation**. It does not c
 
 - Recommended mode: mock assets on Robinhood Chain Testnet.
 - Phase 0 status: complete; the project owner accepted the documented defaults on 2026-09-20.
-- Phase 1 deployment prerequisites: an AWS development account/role, Bedrock model access, and valueless testnet ETH before mock-contract deployment.
+- POC direction: a frontend-first, clearly labelled interactive demonstration; production-shaped AWS services, contracts, and transaction execution are deferred under [ADR 0005](docs/adr/0005-demo-first-poc-scope.md).
+- A later genuine deployment would require an AWS development account/role, Bedrock model access, and valueless testnet ETH before mock-contract deployment.
 - No contracts were deployed, wallets created, funds moved, transactions signed, or transactions broadcast during Phase 0.
 
 Read [the feasibility report](docs/feasibility-report.md), [the threat model](docs/threat-model.md), and [the ADRs](docs/adr/).
@@ -18,6 +19,12 @@ Read [the feasibility report](docs/feasibility-report.md), [the threat model](do
 ```bash
 make test
 make probe
+
+cd web
+npm run dev
+npm run build
 ```
 
 `make probe` uses the intentionally incomplete checked-in example configuration. It is expected to fail or report unavailable components until local testnet inputs are supplied. See [the probe guide](spikes/connectivity_probe/README.md).
+
+The frontend POC runs locally at `http://localhost:5173` during development. Its portfolio, agent, policy, approval, and audit flows are deterministic simulations; the persistent demo disclosures are part of the product boundary defined in ADR 0005.
