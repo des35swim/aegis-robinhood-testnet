@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import {
   Activity,
   AlertTriangle,
@@ -13,12 +13,14 @@ import {
   CircleDollarSign,
   CircleDot,
   Cloud,
+  Coins,
   Clock3,
   Command,
   FileCheck2,
   LayoutDashboard,
   LockKeyhole,
   Menu,
+  MessageSquareText,
   Radio,
   ShieldCheck,
   Sparkles,
@@ -35,6 +37,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Sheet,
   SheetContent,
@@ -42,6 +45,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { Textarea } from "@/components/ui/textarea";
 
 const chartPoints = [
   [0, 148], [44, 139], [88, 144], [132, 115], [176, 121], [220, 92],
@@ -52,11 +56,30 @@ const chartPoints = [
 const navItems = [
   { label: "Overview", icon: LayoutDashboard, active: true },
   { label: "Agent", icon: Bot },
+  { label: "Test token", icon: Coins },
   { label: "Proposals", icon: FileCheck2 },
   { label: "Audit trail", icon: Activity },
+  { label: "Feedback", icon: MessageSquareText, featured: true },
 ];
 
 type Scenario = "allowed" | "denied";
+type Reaction = "try" | "explore" | "work" | "no";
+type FeatureVote = "wallet" | "walkthrough" | "policies" | "teams" | "other";
+
+const reactionOptions: { value: Reaction; emoji: string; label: string }[] = [
+  { value: "try", emoji: "🔥", label: "I’d try this" },
+  { value: "explore", emoji: "👍", label: "Worth exploring" },
+  { value: "work", emoji: "🤔", label: "Needs more work" },
+  { value: "no", emoji: "👎", label: "Not for me" },
+];
+
+const featureOptions: { value: FeatureVote; title: string; detail: string }[] = [
+  { value: "wallet", title: "Live wallet portfolio", detail: "Connect a wallet and inspect real testnet activity." },
+  { value: "walkthrough", title: "Visual proposal walkthrough", detail: "Follow research, policy checks and approval step by step." },
+  { value: "policies", title: "No-code policy builder", detail: "Create limits and approval rules visually." },
+  { value: "teams", title: "Team approvals", detail: "Require multiple people to approve sensitive actions." },
+  { value: "other", title: "Something else", detail: "Describe another idea in the comment box." },
+];
 
 type DemoModelContext = {
   registerTool: (
@@ -77,8 +100,14 @@ export default function Home() {
   const [reviewOpen, setReviewOpen] = useState(false);
   const [agentOpen, setAgentOpen] = useState(false);
   const [auditOpen, setAuditOpen] = useState(false);
+  const [tokenOpen, setTokenOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [walletConnected, setWalletConnected] = useState(false);
   const [approved, setApproved] = useState(false);
+  const [reaction, setReaction] = useState<Reaction | "">("");
+  const [featureVote, setFeatureVote] = useState<FeatureVote | "">("");
+  const [feedbackNote, setFeedbackNote] = useState("");
+  const [feedbackSaved, setFeedbackSaved] = useState(false);
   const linePath = chartPoints.map(([x, y], index) => `${index ? "L" : "M"}${x} ${y}`).join(" ");
   const areaPath = `${linePath} L616 174 L0 174 Z`;
 
@@ -109,6 +138,20 @@ export default function Home() {
     return () => lifecycle.abort();
   }, []);
 
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem("aegis-demo-feedback");
+      if (!saved) return;
+      const response = JSON.parse(saved) as { reaction?: Reaction; featureVote?: FeatureVote; note?: string };
+      if (response.reaction) setReaction(response.reaction);
+      if (response.featureVote) setFeatureVote(response.featureVote);
+      if (response.note) setFeedbackNote(response.note);
+      setFeedbackSaved(Boolean(response.reaction && response.featureVote));
+    } catch {
+      // A malformed or unavailable local store should never block the demo.
+    }
+  }, []);
+
   function chooseScenario(next: Scenario) {
     setScenario(next);
     setApproved(false);
@@ -117,8 +160,21 @@ export default function Home() {
 
   function handleNav(label: string) {
     if (label === "Agent") setAgentOpen(true);
+    if (label === "Test token") setTokenOpen(true);
     if (label === "Proposals") setReviewOpen(true);
     if (label === "Audit trail") setAuditOpen(true);
+    if (label === "Feedback") setFeedbackOpen(true);
+  }
+
+  function saveFeedback(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!reaction || !featureVote) return;
+    try {
+      window.localStorage.setItem("aegis-demo-feedback", JSON.stringify({ reaction, featureVote, note: feedbackNote.trim(), savedAt: new Date().toISOString() }));
+    } catch {
+      // The visible acknowledgement remains useful if browser storage is unavailable.
+    }
+    setFeedbackSaved(true);
   }
 
   return (
@@ -131,11 +187,12 @@ export default function Home() {
 
         <nav className="primary-nav" aria-label="Primary navigation">
           <p className="nav-label">Workspace</p>
-          {navItems.map(({ label, icon: Icon, active }) => (
-            <button className={active ? "nav-item active" : "nav-item"} key={label} type="button" onClick={() => handleNav(label)}>
+          {navItems.map(({ label, icon: Icon, active, featured }) => (
+            <button className={`${active ? "nav-item active" : "nav-item"}${featured ? " feedback-nav" : ""}`} key={label} type="button" onClick={() => handleNav(label)}>
               <Icon />
               <span>{label}</span>
               {active && <span className="nav-active-dot" />}
+              {featured && <span className="feedback-nav-badge">Vote</span>}
             </button>
           ))}
         </nav>
@@ -177,7 +234,7 @@ export default function Home() {
           <section className="page-heading">
             <div>
               <p className="eyebrow">Governed portfolio</p>
-              <h1>Good evening, Derek.</h1>
+              <h1>Welcome to Aegis.</h1>
               <p>Your agent is monitoring exposure, policy and market signals.</p>
             </div>
             <div className="sync-state"><Radio /><span>Chain synced</span><strong>Block 122,022,802</strong></div>
@@ -247,7 +304,7 @@ export default function Home() {
           <section className="agent-bar">
             <div className="agent-avatar"><Command /></div>
             <div className="agent-copy"><span>Ask Aegis</span><strong>What should we evaluate next?</strong></div>
-            <div className="suggestions"><button type="button" onClick={() => chooseScenario("denied")}>Run denied scenario</button><button type="button" onClick={() => setAgentOpen(true)}>Explain this proposal</button></div>
+            <div className="suggestions"><button type="button" onClick={() => chooseScenario("denied")}>Run denied scenario</button><button type="button" onClick={() => setAgentOpen(true)}>Explain this proposal</button><button className="feedback-cta" type="button" onClick={() => setFeedbackOpen(true)}><MessageSquareText /><span>Share feedback</span><em>2 min</em></button></div>
             <Button className="ask-button" size="icon" aria-label="Open agent" onClick={() => setAgentOpen(true)}><ChevronRight /></Button>
           </section>
         </div>
@@ -307,6 +364,102 @@ export default function Home() {
             <div><span className="timeline-icon locked"><CircleDot /></span><section><strong>Wallet authorization</strong><p>Not implemented in this POC. No transaction will be sent.</p><time>Deferred</time></section></div>
           </div>
           <div className="audit-footer"><LockKeyhole /> Simulation only · no onchain activity</div>
+        </SheetContent>
+      </Sheet>
+
+      <Sheet open={tokenOpen} onOpenChange={setTokenOpen}>
+        <SheetContent className="token-sheet">
+          <SheetHeader>
+            <div className="token-sheet-heading">
+              <div className="token-emblem"><ShieldCheck /><span>G</span></div>
+              <div><SheetTitle>Aegis Guard Dog Test</SheetTitle><SheetDescription>GDOGT · Valueless testnet demo token</SheetDescription></div>
+            </div>
+          </SheetHeader>
+
+          <div className="token-status-card">
+            <span className="token-status-dot" />
+            <div><strong>Contract prepared</strong><span>Deployment has not been submitted</span></div>
+            <em>Not deployed</em>
+          </div>
+
+          <div className="token-facts">
+            <div><span>Network</span><strong>Robinhood Testnet</strong><small>Chain ID 46630</small></div>
+            <div><span>Fixed supply</span><strong>1,000,000,000</strong><small>18 decimals</small></div>
+            <div><span>Market price</span><strong>None</strong><small>No sale or liquidity</small></div>
+            <div><span>Admin controls</span><strong>None</strong><small>No mint, tax or blacklist</small></div>
+          </div>
+
+          <div className="token-notice"><AlertTriangle /><div><strong>Test harness only</strong><p>This token is prepared solely for software demonstrations. It has no monetary value, investment rights, backing, official market, or affiliation with Robinhood. Do not send real funds.</p></div></div>
+
+          <div className="contract-checks">
+            <p>Contract safeguards</p>
+            {["Fixed supply minted once", "No owner or administrator", "No transfer tax or fee", "No blacklist or pause", "Source prepared for verification"].map((item) => <div key={item}><CheckCircle2 /><span>{item}</span></div>)}
+          </div>
+
+          <Button className="deploy-pending" disabled><LockKeyhole /> Deployment pending testnet gas</Button>
+          <p className="token-footnote">A browser wallet must explicitly authorize any future testnet deployment.</p>
+        </SheetContent>
+      </Sheet>
+
+      <Sheet open={feedbackOpen} onOpenChange={setFeedbackOpen}>
+        <SheetContent className="feedback-sheet">
+          <SheetHeader>
+            <div className="feedback-heading">
+              <div className="feedback-mark"><MessageSquareText /></div>
+              <div><SheetTitle>Shape the next demo</SheetTitle><SheetDescription>Two quick choices. No commitment, no token purchase.</SheetDescription></div>
+            </div>
+          </SheetHeader>
+
+          {feedbackSaved ? (
+            <div className="feedback-success" role="status">
+              <div className="success-orbit"><Check /></div>
+              <p className="feedback-kicker">Response saved</p>
+              <h3>Thanks for helping steer the experiment.</h3>
+              <p>Your response is stored on this device for the POC. It is not a product order, investment expression or development commitment.</p>
+              <div className="saved-response">
+                <span>{reactionOptions.find((option) => option.value === reaction)?.emoji}</span>
+                <div><strong>{reactionOptions.find((option) => option.value === reaction)?.label}</strong><small>{featureOptions.find((option) => option.value === featureVote)?.title}</small></div>
+              </div>
+              <Button variant="outline" onClick={() => setFeedbackSaved(false)}>Update response</Button>
+            </div>
+          ) : (
+            <form className="feedback-form" onSubmit={saveFeedback}>
+              <fieldset>
+                <legend><span>01</span> Is this concept worth exploring?</legend>
+                <RadioGroup className="reaction-grid" value={reaction} onValueChange={(value) => setReaction(value as Reaction)} aria-label="Reaction to the Aegis concept">
+                  {reactionOptions.map((option) => (
+                    <label className="reaction-option" data-selected={reaction === option.value} key={option.value} htmlFor={`reaction-${option.value}`}>
+                      <RadioGroupItem id={`reaction-${option.value}`} value={option.value} />
+                      <span className="reaction-emoji" aria-hidden="true">{option.emoji}</span>
+                      <strong>{option.label}</strong>
+                    </label>
+                  ))}
+                </RadioGroup>
+              </fieldset>
+
+              <fieldset>
+                <legend><span>02</span> Which capability should a future demo explore?</legend>
+                <RadioGroup className="feature-vote-list" value={featureVote} onValueChange={(value) => setFeatureVote(value as FeatureVote)} aria-label="Next demo capability">
+                  {featureOptions.map((option) => (
+                    <label className="feature-vote" data-selected={featureVote === option.value} key={option.value} htmlFor={`feature-${option.value}`}>
+                      <RadioGroupItem id={`feature-${option.value}`} value={option.value} />
+                      <span><strong>{option.title}</strong><small>{option.detail}</small></span>
+                    </label>
+                  ))}
+                </RadioGroup>
+              </fieldset>
+
+              <label className="feedback-note">
+                <span>Anything else? <em>Optional</em></span>
+                <Textarea value={feedbackNote} onChange={(event) => setFeedbackNote(event.target.value)} maxLength={500} placeholder="What would make this demo more useful?" />
+                <small>{feedbackNote.length}/500</small>
+              </label>
+
+              <div className="research-notice"><LockKeyhole /><p><strong>Exploratory research only.</strong> This vote is not an investment, purchase, token allocation, product order or promise that anything will be developed.</p></div>
+              <Button className="feedback-submit" type="submit" disabled={!reaction || !featureVote}>Save my response</Button>
+              <p className="feedback-storage-note">POC mode · saved only in this browser until a feedback service is connected.</p>
+            </form>
+          )}
         </SheetContent>
       </Sheet>
     </main>

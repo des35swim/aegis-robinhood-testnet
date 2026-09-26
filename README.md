@@ -9,6 +9,7 @@ This repository has completed **Phase 0: feasibility validation**. It does not c
 - Recommended mode: mock assets on Robinhood Chain Testnet.
 - Phase 0 status: complete; the project owner accepted the documented defaults on 2026-09-20.
 - POC direction: a frontend-first, clearly labelled interactive demonstration; production-shaped AWS services, contracts, and transaction execution are deferred under [ADR 0005](docs/adr/0005-demo-first-poc-scope.md).
+- Test token: `Aegis Guard Dog Test` (`GDOGT`) is prepared as a fixed-supply, valueless Robinhood Chain Testnet demo token under [ADR 0006](docs/adr/0006-testnet-demo-meme-token.md); it is not deployed or offered for sale.
 - A later genuine deployment would require an AWS development account/role, Bedrock model access, and valueless testnet ETH before mock-contract deployment.
 - No contracts were deployed, wallets created, funds moved, transactions signed, or transactions broadcast during Phase 0.
 
