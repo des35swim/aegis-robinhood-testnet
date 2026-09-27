@@ -14,7 +14,7 @@ Prepare one CDK stack in `ap-southeast-2` containing:
 - a private, encrypted S3 bucket;
 - a CloudFront distribution using Origin Access Control;
 - an API Gateway HTTP API exposing only `POST /feedback`;
-- a Python 3.12 Lambda with five reserved concurrent executions;
+- a Python 3.12 Lambda behind API Gateway request throttling;
 - an encrypted DynamoDB on-demand table with deletion protection and a one-year TTL;
 - seven-day Lambda log retention; and
 - optional USD 5 monthly budget notifications when an owner email is supplied.

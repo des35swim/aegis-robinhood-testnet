@@ -71,7 +71,6 @@ export class AegisFeedbackStack extends cdk.Stack {
       code: lambda.Code.fromAsset(path.join(moduleDirectory, "../lambda/feedback")),
       memorySize: 128,
       timeout: cdk.Duration.seconds(5),
-      reservedConcurrentExecutions: 5,
       environment: {
         TABLE_NAME: responses.tableName,
         ALLOWED_ORIGIN: allowedOrigin,

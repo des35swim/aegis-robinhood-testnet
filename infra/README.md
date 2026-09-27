@@ -7,7 +7,7 @@ This CDK application prepares the smallest AWS footprint needed to host the stat
 - Private S3 website bucket served only through CloudFront Origin Access Control
 - CloudFront HTTPS distribution with security headers
 - API Gateway HTTP API with only `POST /feedback`
-- Python 3.12 Lambda writer with five reserved concurrent executions
+- Python 3.12 Lambda writer behind API Gateway request throttling
 - DynamoDB on-demand table with encryption, deletion protection and one-year TTL
 - Seven-day Lambda log retention
 - Optional monthly AWS Budget alerts

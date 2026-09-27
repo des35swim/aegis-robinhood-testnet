@@ -32,11 +32,10 @@ test("exposes only a throttled POST feedback route", () => {
   });
 });
 
-test("limits Lambda concurrency and log retention", () => {
+test("uses a small Lambda and limits log retention", () => {
   const stack = template();
   stack.hasResourceProperties("AWS::Lambda::Function", {
     Runtime: "python3.12",
-    ReservedConcurrentExecutions: 5,
     Timeout: 5,
     MemorySize: 128,
   });
