@@ -7,6 +7,7 @@ import {
   ArrowUpRight,
   Ban,
   Bot,
+  BookOpen,
   Check,
   CheckCircle2,
   ChevronRight,
@@ -17,6 +18,7 @@ import {
   Clock3,
   Command,
   FileCheck2,
+  ExternalLink,
   LayoutDashboard,
   LockKeyhole,
   Menu,
@@ -80,6 +82,9 @@ const featureOptions: { value: FeatureVote; title: string; detail: string }[] = 
   { value: "teams", title: "Team approvals", detail: "Require multiple people to approve sensitive actions." },
   { value: "other", title: "Something else", detail: "Describe another idea in the comment box." },
 ];
+
+const projectReadmeUrl = process.env.NEXT_PUBLIC_PROJECT_README_URL?.trim()
+  || "https://github.com/des35swim/aws-coin#aws-hosting-architecture";
 
 type DemoModelContext = {
   registerTool: (
@@ -266,12 +271,17 @@ export default function Home() {
             </div>
             <div className="aws-pill">
               <Cloud />
-              <span>AWS deployment target</span>
+              <span>Hosted on AWS</span>
               <strong>Sydney</strong>
-              <em>Simulated</em>
+              <em>Live</em>
             </div>
           </div>
           <div className="top-actions">
+            <a className="architecture-link" href={projectReadmeUrl} target="_blank" rel="noreferrer">
+              <BookOpen />
+              <span>How it works</span>
+              <ExternalLink className="external-link-icon" />
+            </a>
             <span className="demo-badge"><Sparkles /> Demo mode</span>
             <Button className="wallet-button" variant="outline" onClick={() => setWalletConnected((value) => !value)}>
               <WalletCards /> {walletConnected ? "0x7E2A…91F2" : "Connect wallet"}
