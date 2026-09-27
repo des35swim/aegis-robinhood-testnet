@@ -1,0 +1,21 @@
+{
+  "name": "aegis-poc-infrastructure",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "synth": "cdk synth",
+    "test": "npm run build && node --import tsx --test test/*.test.ts && python3 -m unittest discover -s test -p 'test_*.py'"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.271.0",
+    "constructs": "10.5.0"
+  },
+  "devDependencies": {
+    "aws-cdk": "2.1143.0",
+    "@types/node": "22.19.19",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3"
+  }
+}

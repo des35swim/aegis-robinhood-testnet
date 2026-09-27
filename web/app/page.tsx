@@ -108,6 +108,10 @@ export default function Home() {
   const [featureVote, setFeatureVote] = useState<FeatureVote | "">("");
   const [feedbackNote, setFeedbackNote] = useState("");
   const [feedbackSaved, setFeedbackSaved] = useState(false);
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+  const [feedbackError, setFeedbackError] = useState("");
+  const [feedbackStoredCentrally, setFeedbackStoredCentrally] = useState(false);
+  const [feedbackApiUrl, setFeedbackApiUrl] = useState(process.env.NEXT_PUBLIC_FEEDBACK_API_URL?.trim() ?? "");
   const linePath = chartPoints.map(([x, y], index) => `${index ? "L" : "M"}${x} ${y}`).join(" ");
   const areaPath = `${linePath} L616 174 L0 174 Z`;
 
@@ -142,15 +146,32 @@ export default function Home() {
     try {
       const saved = window.localStorage.getItem("aegis-demo-feedback");
       if (!saved) return;
-      const response = JSON.parse(saved) as { reaction?: Reaction; featureVote?: FeatureVote; note?: string };
+      const response = JSON.parse(saved) as { reaction?: Reaction; featureVote?: FeatureVote; note?: string; storedCentrally?: boolean };
       if (response.reaction) setReaction(response.reaction);
       if (response.featureVote) setFeatureVote(response.featureVote);
       if (response.note) setFeedbackNote(response.note);
+      setFeedbackStoredCentrally(Boolean(response.storedCentrally));
       setFeedbackSaved(Boolean(response.reaction && response.featureVote));
     } catch {
       // A malformed or unavailable local store should never block the demo.
     }
   }, []);
+
+  useEffect(() => {
+    if (feedbackApiUrl) return;
+    const lifecycle = new AbortController();
+
+    void fetch("/runtime-config.json", { cache: "no-store", signal: lifecycle.signal })
+      .then((response) => response.ok ? response.json() : null)
+      .then((config: { feedbackApiUrl?: unknown } | null) => {
+        if (typeof config?.feedbackApiUrl === "string" && /^https:\/\//.test(config.feedbackApiUrl)) {
+          setFeedbackApiUrl(config.feedbackApiUrl);
+        }
+      })
+      .catch(() => undefined);
+
+    return () => lifecycle.abort();
+  }, [feedbackApiUrl]);
 
   function chooseScenario(next: Scenario) {
     setScenario(next);
@@ -166,15 +187,43 @@ export default function Home() {
     if (label === "Feedback") setFeedbackOpen(true);
   }
 
-  function saveFeedback(event: FormEvent<HTMLFormElement>) {
+  async function saveFeedback(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!reaction || !featureVote) return;
+    setFeedbackError("");
+    setFeedbackSubmitting(true);
+
+    let responseId = "";
     try {
-      window.localStorage.setItem("aegis-demo-feedback", JSON.stringify({ reaction, featureVote, note: feedbackNote.trim(), savedAt: new Date().toISOString() }));
+      responseId = window.localStorage.getItem("aegis-feedback-response-id") ?? window.crypto.randomUUID();
+      window.localStorage.setItem("aegis-feedback-response-id", responseId);
     } catch {
-      // The visible acknowledgement remains useful if browser storage is unavailable.
+      responseId = window.crypto.randomUUID();
     }
-    setFeedbackSaved(true);
+
+    try {
+      if (feedbackApiUrl) {
+        const response = await fetch(feedbackApiUrl, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ responseId, reaction, featureVote, note: feedbackNote.trim() }),
+        });
+        if (!response.ok) throw new Error(`feedback API returned ${response.status}`);
+      }
+
+      const storedCentrally = Boolean(feedbackApiUrl);
+      try {
+        window.localStorage.setItem("aegis-demo-feedback", JSON.stringify({ reaction, featureVote, note: feedbackNote.trim(), storedCentrally, savedAt: new Date().toISOString() }));
+      } catch {
+        // Central submission can still succeed when local browser storage is unavailable.
+      }
+      setFeedbackStoredCentrally(storedCentrally);
+      setFeedbackSaved(true);
+    } catch {
+      setFeedbackError("We couldn’t send your response. Please try again in a moment.");
+    } finally {
+      setFeedbackSubmitting(false);
+    }
   }
 
   return (
@@ -415,7 +464,7 @@ export default function Home() {
               <div className="success-orbit"><Check /></div>
               <p className="feedback-kicker">Response saved</p>
               <h3>Thanks for helping steer the experiment.</h3>
-              <p>Your response is stored on this device for the POC. It is not a product order, investment expression or development commitment.</p>
+              <p>{feedbackStoredCentrally ? "Your response was sent to the Aegis feedback service." : "Your response is stored on this device for the POC."} It is not a product order, investment expression or development commitment.</p>
               <div className="saved-response">
                 <span>{reactionOptions.find((option) => option.value === reaction)?.emoji}</span>
                 <div><strong>{reactionOptions.find((option) => option.value === reaction)?.label}</strong><small>{featureOptions.find((option) => option.value === featureVote)?.title}</small></div>
@@ -456,8 +505,9 @@ export default function Home() {
               </label>
 
               <div className="research-notice"><LockKeyhole /><p><strong>Exploratory research only.</strong> This vote is not an investment, purchase, token allocation, product order or promise that anything will be developed.</p></div>
-              <Button className="feedback-submit" type="submit" disabled={!reaction || !featureVote}>Save my response</Button>
-              <p className="feedback-storage-note">POC mode · saved only in this browser until a feedback service is connected.</p>
+              {feedbackError && <p className="feedback-error" role="alert">{feedbackError}</p>}
+              <Button className="feedback-submit" type="submit" disabled={!reaction || !featureVote || feedbackSubmitting}>{feedbackSubmitting ? "Sending…" : "Save my response"}</Button>
+              <p className="feedback-storage-note">{feedbackApiUrl ? "Anonymous POC feedback · no wallet address or email collected." : "POC mode · saved only in this browser until the AWS feedback service is deployed."}</p>
             </form>
           )}
         </SheetContent>

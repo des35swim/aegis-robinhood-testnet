@@ -1,0 +1,7 @@
+{
+  "app": "node --import tsx bin/aegis-poc.ts",
+  "context": {
+    "allowedOrigin": "auto",
+    "monthlyBudgetUsd": 5
+  }
+}
