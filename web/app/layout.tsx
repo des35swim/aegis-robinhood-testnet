@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Aegis — Governed RWA Agent",
-  description: "An interactive demonstration of governed, human-authorized asset proposals.",
+  title: "Aegis — Governance for Financial AI Agents",
+  description: "An AWS-hosted proof of concept showing policy, human approval and audit controls around financial actions proposed by AI agents.",
   other: {
     "codex-preview": "development",
   },

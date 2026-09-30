@@ -21,6 +21,8 @@ htmlcov/
 node_modules/
 dist/
 build/
+!web/build/
+!web/build/**
 coverage/
 cdk.out/
 *.tsbuildinfo

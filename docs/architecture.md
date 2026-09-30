@@ -1,10 +1,14 @@
-# Phase 0 architecture
+# Target financial-agent governance architecture
 
-Status: proposed deployment architecture; no AWS resources deployed
+Status: target product architecture; not deployed by the current POC
+
+![Aegis target governance architecture](architecture/aegis-target-governance.svg)
+
+The editable source is available at [`architecture/aegis-target-governance.drawio`](architecture/aegis-target-governance.drawio).
 
 ```text
 Browser UI
-  |-- Cognito/OIDC JWT --> AgentCore Ingress Gateway
+  |-- Cognito/OIDC JWT --> AgentCore Ingress Gateway (target)
   |                         `--> AgentCore Runtime (orchestration only)
   |                                `--> AgentCore Tool Gateway
   |                                      |-- read adapters
@@ -18,6 +22,8 @@ Tool/human services --> DynamoDB authoritative state + immutable events
 External adapters ---> approved RPC, registry, price/feed, quote/venue
 All layers ---------> correlated sanitized telemetry
 ```
+
+The current deployed architecture is deliberately smaller: CloudFront and S3 host the static site, while API Gateway, Lambda and DynamoDB store anonymous feedback. See the [repository README](../README.md#current-deployed-aws-architecture) for that diagram and resource inventory.
 
 ## Boundary rules
 
