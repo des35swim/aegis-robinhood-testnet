@@ -71,7 +71,7 @@ export function GovernanceOverview({ onLaunchDemo, onOpenFeedback }: GovernanceO
       <section className="governance-hero">
         <div className="hero-copy">
           <div className="hero-kicker"><Sparkles /> Financial agent governance</div>
-          <h1>The control layer between <span>AI intent</span> and financial execution.</h1>
+          <h1>AI proposes. <span>Aegis governs.</span></h1>
           <p className="hero-lede">AI agents can research and propose. Aegis applies deterministic policy, requires human approval when needed, constrains execution and records the decision trail.</p>
           <div className="hero-actions">
             <Button className="primary-hero-action" onClick={onLaunchDemo}><Play /> Run the governance demo</Button>

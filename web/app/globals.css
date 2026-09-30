@@ -83,7 +83,7 @@ button { font: inherit; }
 .hero-kicker { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 24px; color: #80def1; font-size: 12px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
 .hero-kicker svg { width: 16px; }
 .hero-copy h1 { max-width: 760px; margin: 0; color: #f2f8fb; font-size: clamp(44px, 5.3vw, 74px); font-weight: 520; letter-spacing: -.06em; line-height: .99; }
-.hero-copy h1 span { color: #79e7ff; text-shadow: 0 0 35px rgba(121,231,255,.16); }
+.hero-copy h1 span { display: block; color: #79e7ff; text-shadow: 0 0 35px rgba(121,231,255,.16); }
 .hero-lede { max-width: 680px; margin: 28px 0 0; color: #91a5b1; font-size: 18px; line-height: 1.7; }
 .hero-actions { display: flex; align-items: center; gap: 12px; margin-top: 34px; }
 .primary-hero-action, .secondary-hero-action { height: 48px; padding-inline: 19px; border-radius: 12px; font-weight: 700; }
