@@ -48,6 +48,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
+import { GovernanceOverview } from "@/components/aegis/governance-overview";
 
 const chartPoints = [
   [0, 148], [44, 139], [88, 144], [132, 115], [176, 121], [220, 92],
@@ -55,12 +56,15 @@ const chartPoints = [
   [528, 38], [572, 18], [616, 25],
 ];
 
+type View = "overview" | "demo";
+
 const navItems = [
-  { label: "Overview", icon: LayoutDashboard, active: true },
-  { label: "Agent", icon: Bot },
-  { label: "Test token", icon: Coins },
+  { id: "overview", label: "Overview", icon: ShieldCheck },
+  { id: "demo", label: "Governance demo", icon: LayoutDashboard },
+  { id: "agent", label: "Agent proposal", icon: Bot },
   { label: "Proposals", icon: FileCheck2 },
   { label: "Audit trail", icon: Activity },
+  { label: "Test token", icon: Coins },
   { label: "Feedback", icon: MessageSquareText, featured: true },
 ];
 
@@ -76,15 +80,15 @@ const reactionOptions: { value: Reaction; emoji: string; label: string }[] = [
 ];
 
 const featureOptions: { value: FeatureVote; title: string; detail: string }[] = [
-  { value: "wallet", title: "Live wallet portfolio", detail: "Connect a wallet and inspect real testnet activity." },
-  { value: "walkthrough", title: "Visual proposal walkthrough", detail: "Follow research, policy checks and approval step by step." },
-  { value: "policies", title: "No-code policy builder", detail: "Create limits and approval rules visually." },
-  { value: "teams", title: "Team approvals", detail: "Require multiple people to approve sensitive actions." },
+  { value: "wallet", title: "Testnet execution adapter", detail: "Authorize a governed action through a real testnet wallet." },
+  { value: "walkthrough", title: "AgentCore proposal path", detail: "Let a hosted agent create one structured, simulated proposal." },
+  { value: "policies", title: "Visual policy builder", detail: "Create limits, allowlists and escalation rules without code." },
+  { value: "teams", title: "Multi-person approvals", detail: "Require more than one reviewer for sensitive actions." },
   { value: "other", title: "Something else", detail: "Describe another idea in the comment box." },
 ];
 
 const projectReadmeUrl = process.env.NEXT_PUBLIC_PROJECT_README_URL?.trim()
-  || "https://github.com/des35swim/aws-coin#aws-hosting-architecture";
+  || "https://github.com/des35swim/aegis-robinhood-testnet-demo#governance-model";
 
 type DemoModelContext = {
   registerTool: (
@@ -101,6 +105,7 @@ type DemoModelContext = {
 };
 
 export default function Home() {
+  const [activeView, setActiveView] = useState<View>("overview");
   const [scenario, setScenario] = useState<Scenario>("allowed");
   const [reviewOpen, setReviewOpen] = useState(false);
   const [agentOpen, setAgentOpen] = useState(false);
@@ -148,18 +153,23 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
     try {
       const saved = window.localStorage.getItem("aegis-demo-feedback");
       if (!saved) return;
       const response = JSON.parse(saved) as { reaction?: Reaction; featureVote?: FeatureVote; note?: string; storedCentrally?: boolean };
-      if (response.reaction) setReaction(response.reaction);
-      if (response.featureVote) setFeatureVote(response.featureVote);
-      if (response.note) setFeedbackNote(response.note);
-      setFeedbackStoredCentrally(Boolean(response.storedCentrally));
-      setFeedbackSaved(Boolean(response.reaction && response.featureVote));
+      queueMicrotask(() => {
+        if (cancelled) return;
+        if (response.reaction) setReaction(response.reaction);
+        if (response.featureVote) setFeatureVote(response.featureVote);
+        if (response.note) setFeedbackNote(response.note);
+        setFeedbackStoredCentrally(Boolean(response.storedCentrally));
+        setFeedbackSaved(Boolean(response.reaction && response.featureVote));
+      });
     } catch {
       // A malformed or unavailable local store should never block the demo.
     }
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
@@ -184,8 +194,9 @@ export default function Home() {
     setAgentOpen(false);
   }
 
-  function handleNav(label: string) {
-    if (label === "Agent") setAgentOpen(true);
+  function handleNav(label: string, id?: string) {
+    if (id === "overview" || id === "demo") setActiveView(id);
+    if (label === "Agent proposal") setAgentOpen(true);
     if (label === "Test token") setTokenOpen(true);
     if (label === "Proposals") setReviewOpen(true);
     if (label === "Audit trail") setAuditOpen(true);
@@ -241,14 +252,16 @@ export default function Home() {
 
         <nav className="primary-nav" aria-label="Primary navigation">
           <p className="nav-label">Workspace</p>
-          {navItems.map(({ label, icon: Icon, active, featured }) => (
-            <button className={`${active ? "nav-item active" : "nav-item"}${featured ? " feedback-nav" : ""}`} key={label} type="button" onClick={() => handleNav(label)}>
+          {navItems.map(({ label, icon: Icon, id, featured }) => {
+            const active = id === activeView;
+            return (
+            <button className={`${active ? "nav-item active" : "nav-item"}${featured ? " feedback-nav" : ""}`} key={label} type="button" onClick={() => handleNav(label, id)}>
               <Icon />
               <span>{label}</span>
               {active && <span className="nav-active-dot" />}
               {featured && <span className="feedback-nav-badge">Vote</span>}
             </button>
-          ))}
+          )})}
         </nav>
 
         <div className="rail-status">
@@ -262,12 +275,12 @@ export default function Home() {
 
       <section className="workspace">
         <header className="topbar">
-          <button className="mobile-menu" aria-label="Open navigation" type="button"><Menu /></button>
+          <button className="mobile-menu" aria-label={activeView === "overview" ? "Open governance demo" : "Return to overview"} type="button" onClick={() => setActiveView((view) => view === "overview" ? "demo" : "overview")}><Menu /></button>
           <div className="environment-status">
             <div className="network-pill">
               <span className="pulse-dot" />
-              Robinhood Testnet
-              <span className="chain-id">46630</span>
+              {activeView === "overview" ? "Governance control layer" : "Robinhood Testnet"}
+              <span className="chain-id">{activeView === "overview" ? "POC" : "46630"}</span>
             </div>
             <div className="aws-pill">
               <Cloud />
@@ -282,19 +295,26 @@ export default function Home() {
               <span>How it works</span>
               <ExternalLink className="external-link-icon" />
             </a>
-            <span className="demo-badge"><Sparkles /> Demo mode</span>
-            <Button className="wallet-button" variant="outline" onClick={() => setWalletConnected((value) => !value)}>
-              <WalletCards /> {walletConnected ? "0x7E2A…91F2" : "Connect wallet"}
-            </Button>
+            {activeView === "overview" ? (
+              <Button className="wallet-button launch-demo-top" variant="outline" onClick={() => setActiveView("demo")}>
+                <ArrowUpRight /> Launch demo
+              </Button>
+            ) : (
+              <Button className="wallet-button" variant="outline" onClick={() => setWalletConnected((value) => !value)}>
+                <WalletCards /> {walletConnected ? "0x7E2A…91F2" : "Connect testnet wallet"}
+              </Button>
+            )}
           </div>
         </header>
 
-        <div className="content-wrap">
+        {activeView === "overview" ? (
+          <GovernanceOverview onLaunchDemo={() => setActiveView("demo")} onOpenFeedback={() => setFeedbackOpen(true)} />
+        ) : <div className="content-wrap">
           <section className="page-heading">
             <div>
-              <p className="eyebrow">Governed portfolio</p>
-              <h1>Welcome to Aegis.</h1>
-              <p>Your agent is monitoring exposure, policy and market signals.</p>
+              <p className="eyebrow">Robinhood Testnet use case</p>
+              <h1>Governed portfolio.</h1>
+              <p>An agent proposes. Aegis evaluates. A human remains in control.</p>
             </div>
             <div className="sync-state"><Radio /><span>Chain synced</span><strong>Block 122,022,802</strong></div>
           </section>
@@ -362,11 +382,11 @@ export default function Home() {
 
           <section className="agent-bar">
             <div className="agent-avatar"><Command /></div>
-            <div className="agent-copy"><span>Ask Aegis</span><strong>What should we evaluate next?</strong></div>
+            <div className="agent-copy"><span>Guided scenario</span><strong>See how Aegis handles the next proposal</strong></div>
             <div className="suggestions"><button type="button" onClick={() => chooseScenario("denied")}>Run denied scenario</button><button type="button" onClick={() => setAgentOpen(true)}>Explain this proposal</button><button className="feedback-cta" type="button" onClick={() => setFeedbackOpen(true)}><MessageSquareText /><span>Share feedback</span><em>2 min</em></button></div>
             <Button className="ask-button" size="icon" aria-label="Open agent" onClick={() => setAgentOpen(true)}><ChevronRight /></Button>
           </section>
-        </div>
+        </div>}
       </section>
 
       <Dialog open={reviewOpen} onOpenChange={setReviewOpen}>
@@ -400,10 +420,10 @@ export default function Home() {
       <Sheet open={agentOpen} onOpenChange={setAgentOpen}>
         <SheetContent className="agent-sheet">
           <SheetHeader>
-            <div className="agent-sheet-title"><div className="agent-avatar"><Command /></div><div><SheetTitle>Aegis agent</SheetTitle><SheetDescription>Deterministic demo assistant</SheetDescription></div></div>
+            <div className="agent-sheet-title"><div className="agent-avatar"><Command /></div><div><SheetTitle>Research agent</SheetTitle><SheetDescription>The agent proposes · Aegis governs</SheetDescription></div></div>
           </SheetHeader>
           <div className="conversation">
-            <div className="agent-message"><span>Aegis</span><p>I found a mock Amazon exposure proposal that fits the demo portfolio&apos;s remaining policy capacity. No market order or transaction has been created.</p></div>
+            <div className="agent-message"><span>Agent proposal</span><p>I found a mock Amazon exposure proposal that fits the demo portfolio&apos;s remaining policy capacity. I can propose this action, but I cannot approve, sign or execute it.</p></div>
             <div className="reasoning-card"><strong>Why this proposal?</strong><ul><li>Technology exposure is below the demo target.</li><li>The proposed allocation remains under the 20% concentration cap.</li><li>All price and registry records are simulated fixtures.</li></ul></div>
             <p className="conversation-label">Try a scenario</p>
             <button className="scenario-option" type="button" onClick={() => chooseScenario("allowed")}><ShieldCheck /><span><strong>Allowed proposal</strong><small>$4,500 · 3.5% portfolio impact</small></span><ChevronRight /></button>
@@ -420,7 +440,7 @@ export default function Home() {
             <div><span className="timeline-icon complete"><Check /></span><section><strong>Proposal created</strong><p>Deterministic fixture assembled from the mock registry.</p><time>14:02:11</time></section></div>
             <div><span className="timeline-icon complete"><ShieldCheck /></span><section><strong>Policy evaluated</strong><p>{scenario === "allowed" ? "6 of 6 controls passed." : "Concentration control denied the proposal."}</p><time>14:02:12</time></section></div>
             <div><span className={approved ? "timeline-icon complete" : "timeline-icon pending"}>{approved ? <Check /> : <Clock3 />}</span><section><strong>{approved ? "Human approval recorded" : "Awaiting human review"}</strong><p>{approved ? "Local demonstration state only." : "No authorization has been given."}</p><time>{approved ? "14:02:24" : "Pending"}</time></section></div>
-            <div><span className="timeline-icon locked"><CircleDot /></span><section><strong>Wallet authorization</strong><p>Not implemented in this POC. No transaction will be sent.</p><time>Deferred</time></section></div>
+            <div><span className="timeline-icon locked"><CircleDot /></span><section><strong>Controlled execution</strong><p>Wallet authorization and transaction submission are not implemented in this POC.</p><time>Deferred</time></section></div>
           </div>
           <div className="audit-footer"><LockKeyhole /> Simulation only · no onchain activity</div>
         </SheetContent>
