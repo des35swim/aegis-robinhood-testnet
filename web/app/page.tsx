@@ -88,7 +88,7 @@ const featureOptions: { value: FeatureVote; title: string; detail: string }[] = 
 ];
 
 const projectReadmeUrl = process.env.NEXT_PUBLIC_PROJECT_README_URL?.trim()
-  || "https://github.com/des35swim/aegis-robinhood-testnet-demo#governance-model";
+  || "https://github.com/des35swim/aegis-robinhood-testnet#governance-model";
 
 type DemoModelContext = {
   registerTool: (
