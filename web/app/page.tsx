@@ -295,7 +295,6 @@ export default function Home() {
               <span>How it works</span>
               <ExternalLink className="external-link-icon" />
             </a>
-            <span className="demo-badge"><Sparkles /> Demo mode</span>
             {activeView === "overview" ? (
               <Button className="wallet-button launch-demo-top" variant="outline" onClick={() => setActiveView("demo")}>
                 <ArrowUpRight /> Launch demo
@@ -314,7 +313,7 @@ export default function Home() {
           <section className="page-heading">
             <div>
               <p className="eyebrow">Robinhood Testnet use case</p>
-              <h1>Governed portfolio demo.</h1>
+              <h1>Governed portfolio.</h1>
               <p>An agent proposes. Aegis evaluates. A human remains in control.</p>
             </div>
             <div className="sync-state"><Radio /><span>Chain synced</span><strong>Block 122,022,802</strong></div>
