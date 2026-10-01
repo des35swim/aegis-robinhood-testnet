@@ -1,6 +1,6 @@
 # Aegis — Governance for Financial AI Agents
 
-An AWS-hosted proof of concept showing how deterministic policy, human approval, constrained execution and governance evidence can sit between an AI agent and a financial action.
+AWS-hosted showing how deterministic policy, human approval, constrained execution and governance evidence can sit between an AI agent and a financial action.
 
 An agent may research and propose an action. Aegis is the control layer that decides whether that action is allowed, blocked or must be reviewed by a human before an execution system can receive it.
 
@@ -19,7 +19,7 @@ Proposes                 Applies deterministic policy
 
 The agent does not decide its own permissions, approve its own proposal or receive unrestricted financial credentials.
 
-## AWS-hosted proof of concept
+## AWS-hosted
 
 The public website is hosted on AWS in the Sydney Region. CloudFront serves the frontend globally from a private S3 origin. The interface is deliberately realistic, but the portfolio, AI research, policy decisions, wallet connection, approvals, token activity and blockchain transactions are simulations.
 
@@ -27,7 +27,7 @@ The feedback path is real: when a visitor submits the feedback form, the browser
 
 ## Current deployed AWS architecture
 
-![Aegis AWS proof-of-concept architecture](docs/architecture/aegis-aws-architecture.svg)
+![Aegis AWS architecture](docs/architecture/aegis-aws-architecture.svg)
 
 The editable diagram source is available in [draw.io format](docs/architecture/aegis-aws-architecture.drawio).
 
